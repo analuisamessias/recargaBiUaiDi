@@ -1,0 +1,15 @@
+{
+  "files.associations": {
+    "cmath": "c",
+    "type_traits": "c",
+    "limits": "c",
+    "*.tcc": "c",
+    "typeinfo": "c",
+    "iostream": "cpp",
+    "vector": "cpp",
+    "string.h": "c",
+    "stdbool.h": "c",
+    "math.h": "c",
+    "sdl.h": "c"
+  }
+}
