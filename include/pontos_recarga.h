@@ -10,13 +10,13 @@
 #define MAX_STR_LEN 512
 
 typedef struct {
-    char *idend;
+    char* idend;
     long id_logrado;
-    char *sigla_tipo;
-    char *nome_logra;
+    char* sigla_tipo;
+    char* nome_logra;
     int numero_imo;
-    char *nome_bairr;
-    char *nome_regio;
+    char* nome_bairr;
+    char* nome_regio;
     int cep;
     double x;
     double y;
@@ -29,7 +29,9 @@ typedef struct {
 } Distancia;
 
 double distancia_euclidiana(double x1, double y1, double x2, double y2);
+
 int compara_distancia(const void *a, const void *b);
-void processar_comando(Endereco *enderecos, int num_enderecos);
+
+void processar_comando(Endereco *enderecos, int num_enderecos, char *comando);
 
 #endif // PONTOS_RECARGA_H

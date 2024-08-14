@@ -7,7 +7,7 @@ BIN = bin
 HDRS = $(INC)/pontos_recarga.h
 OBJS = $(OBJ)/main.o $(OBJ)/pontos_recarga.o
 CFLAGS = -Wall -g -c -I$(INC) -std=c11
-EXE = $(BIN)/geracarga.out
+EXE = $(BIN)/tp3.out
 
 all: dirs $(EXE)
 
