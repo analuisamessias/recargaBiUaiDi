@@ -12,6 +12,38 @@ int compara_distancia(const void *a, const void *b) {
     return (da->distancia > db->distancia) - (da->distancia < db->distancia);
 }
 
+// Função para carregar os endereços do arquivo de base
+void carregar_enderecos(const char* nome_arquivo, Endereco* enderecos, int* num_enderecos) {
+    FILE *arquivo = fopen(nome_arquivo, "r");
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo %s\n", nome_arquivo);
+        exit(1);
+    }
+
+    char linha[MAX_STR_LEN];
+    *num_enderecos = 0;
+
+    while (fgets(linha, sizeof(linha), arquivo) != NULL && *num_enderecos < MAX_ENDERECOS) {
+        enderecos[*num_enderecos].idend = (char*)malloc(MAX_STR_LEN * sizeof(char));
+        enderecos[*num_enderecos].sigla_tipo = (char*)malloc(MAX_STR_LEN * sizeof(char));
+        enderecos[*num_enderecos].nome_logra = (char*)malloc(MAX_STR_LEN * sizeof(char));
+        enderecos[*num_enderecos].nome_bairr = (char*)malloc(MAX_STR_LEN * sizeof(char));
+        enderecos[*num_enderecos].nome_regio = (char*)malloc(MAX_STR_LEN * sizeof(char));
+
+        sscanf(linha, "%[^;];%ld;%[^;];%[^;];%d;%[^;];%[^;];%d;%lf;%lf",
+               enderecos[*num_enderecos].idend, &enderecos[*num_enderecos].id_logrado,
+               enderecos[*num_enderecos].sigla_tipo, enderecos[*num_enderecos].nome_logra,
+               &enderecos[*num_enderecos].numero_imo, enderecos[*num_enderecos].nome_bairr,
+               enderecos[*num_enderecos].nome_regio, &enderecos[*num_enderecos].cep,
+               &enderecos[*num_enderecos].x, &enderecos[*num_enderecos].y);
+        enderecos[*num_enderecos].ativo = 1;
+        (*num_enderecos)++;
+    }
+
+    fclose(arquivo);
+}
+
+
 // Função para processar os comandos do arquivo geracarga.ev
 void processar_comando(Endereco *enderecos, int num_enderecos, char *comando) {
     double x, y;

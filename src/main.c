@@ -1,76 +1,70 @@
 #include "pontos_recarga.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-int main() {
-    // Lê o arquivo com as informações dos pontos de recarga
-    FILE *arquivo_base = fopen("geracarga.base", "r");
-    if (arquivo_base == NULL) {
-        printf("Erro ao abrir o arquivo geracarga.base\n");
+int main(int argc, char *argv[]) {
+    if (argc != 5) {
+        printf("Uso: %s -b <arquivo_base> -e <arquivo_eventos>\n", argv[0]);
         return 1;
     }
 
-    // Lê o arquivo com os comandos para o funcionamento do programa
-    FILE *arquivo_ev = fopen("geracarga.ev", "r");
-    if (arquivo_ev == NULL) {
-        printf("Erro ao abrir o arquivo geracarga.ev\n");
-        fclose(arquivo_base);
+    char *arquivo_base_nome = NULL;
+    char *arquivo_ev_nome = NULL;
+
+    // Processar os argumentos
+    for (int i = 1; i < argc; i += 2) {
+        if (strcmp(argv[i], "-b") == 0) {
+            arquivo_base_nome = argv[i + 1];
+        } else if (strcmp(argv[i], "-e") == 0) {
+            arquivo_ev_nome = argv[i + 1];
+        } else {
+            printf("Parâmetro desconhecido: %s\n", argv[i]);
+            printf("Uso: %s -b <arquivo_base> -e <arquivo_eventos>\n", argv[0]);
+            return 1;
+        }
+    }
+
+    // Verificar se ambos os arquivos foram especificados
+    if (arquivo_base_nome == NULL || arquivo_ev_nome == NULL) {
+        printf("Parâmetros -b e -e são obrigatórios.\n");
         return 1;
     }
 
+    // Carregar endereços do arquivo base
     Endereco *enderecos = (Endereco *)malloc(MAX_ENDERECOS * sizeof(Endereco));
     if (enderecos == NULL) {
         printf("Erro ao alocar memória para endereços.\n");
-        fclose(arquivo_base);
-        fclose(arquivo_ev);
         return 1;
     }
 
-    char linha[MAX_STR_LEN];
     int num_enderecos = 0;
+    carregar_enderecos(arquivo_base_nome, enderecos, &num_enderecos);
 
-    // Ler endereços do arquivo geracarga.base
-    while (fgets(linha, sizeof(linha), arquivo_base) != NULL && num_enderecos < MAX_ENDERECOS) {
-        enderecos[num_enderecos].idend = (char*)malloc(MAX_STR_LEN * sizeof(char));
-        enderecos[num_enderecos].sigla_tipo = (char*)malloc(MAX_STR_LEN * sizeof(char));
-        enderecos[num_enderecos].nome_logra = (char*)malloc(MAX_STR_LEN * sizeof(char));
-        enderecos[num_enderecos].nome_bairr = (char*)malloc(MAX_STR_LEN * sizeof(char));
-        enderecos[num_enderecos].nome_regio = (char*)malloc(MAX_STR_LEN * sizeof(char));
-
-        sscanf(linha, "%[^;];%ld;%[^;];%[^;];%d;%[^;];%[^;];%d;%lf;%lf",
-               enderecos[num_enderecos].idend, &enderecos[num_enderecos].id_logrado,
-               enderecos[num_enderecos].sigla_tipo, enderecos[num_enderecos].nome_logra,
-               &enderecos[num_enderecos].numero_imo, enderecos[num_enderecos].nome_bairr,
-               enderecos[num_enderecos].nome_regio, &enderecos[num_enderecos].cep,
-               &enderecos[num_enderecos].x, &enderecos[num_enderecos].y);
-        enderecos[num_enderecos].ativo = 1; // Inicialmente, todos os pontos estão ativados
-        num_enderecos++;
-    }
-
-    fclose(arquivo_base);
-
-    // Ler comandos do arquivo geracarga.ev
-    int num_comandos;
-    if (fgets(linha, sizeof(linha), arquivo_ev) != NULL) {
-        sscanf(linha, "%d", &num_comandos);
-    } else {
-        printf("Erro ao ler a quantidade de comandos.\n");
-        fclose(arquivo_ev);
+    // Abrir o arquivo de eventos
+    FILE *arquivo_ev = fopen(arquivo_ev_nome, "r");
+    if (arquivo_ev == NULL) {
+        printf("Erro ao abrir o arquivo %s\n", arquivo_ev_nome);
         free(enderecos);
         return 1;
     }
 
-    // Processar cada comando do arquivo geracarga.ev
-    for (int i = 0; i <= num_comandos; i++) {
-        if (fgets(linha, sizeof(linha), arquivo_ev) != NULL) {
-            processar_comando(enderecos, num_enderecos, linha);
-        } else {
-            printf("Erro ao ler comando %d.\n", i + 1);
-        }
+    // Ler a quantidade de comandos
+    char linha[MAX_STR_LEN];
+
+    // Ignora a primeira linha (o número de comandos)
+    fgets(linha, sizeof(linha), arquivo_ev);
+
+    // Lê o restante das linhas até o final do arquivo
+    while (fgets(linha, sizeof(linha), arquivo_ev) != NULL) {
+        processar_comando(enderecos, num_enderecos, linha);
     }
 
+    // Fechar o arquivo de eventos
     fclose(arquivo_ev);
 
-    // Liberação de memória
-    for (int i = 0; i < num_enderecos; i++) {
+    // Liberar memória alocada
+    for (int i = 0; i <= num_enderecos; i++) {
         free(enderecos[i].idend);
         free(enderecos[i].sigla_tipo);
         free(enderecos[i].nome_logra);

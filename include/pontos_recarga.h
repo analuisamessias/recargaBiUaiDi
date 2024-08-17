@@ -28,10 +28,16 @@ typedef struct {
     int indice;
 } Distancia;
 
+// Função para calcular a distância euclidiana entre dois pontos
 double distancia_euclidiana(double x1, double y1, double x2, double y2);
 
+// Função para comparar duas distâncias
 int compara_distancia(const void *a, const void *b);
 
+// Função que processa um comando do arquivo de entrada
 void processar_comando(Endereco *enderecos, int num_enderecos, char *comando);
+
+// Função para carregar endereços do arquivo de endereços
+void carregar_enderecos(const char* nome_arquivo, Endereco* enderecos, int* num_enderecos);
 
 #endif // PONTOS_RECARGA_H
